@@ -1,0 +1,63 @@
+version: '3.7'
+
+services:
+  wordpress:
+    container_name: golaabi_blog_wordpress
+    build: .
+    ports:
+      - "48050:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: user
+      WORDPRESS_DB_PASSWORD: password
+    depends_on:
+      - db
+
+  db:
+    container_name: golaabi_blog_db
+    image: mariadb:latest
+    ports:
+      - "48051:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    container_name: golaabi_blog_phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "48052:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: rootpassword
+
+  wpcli:
+    container_name: golaabi_blog_wpcli
+    image: wordpress:cli
+    volumes:
+      - .:/var/www/html
+    entrypoint: ["sh", "-c", "while :; do sleep 2073600; done"]
+
+  filemanager:
+    container_name: golaabi_blog_filemanager
+    image: filebrowser/filebrowser
+    ports:
+      - "48053:80"
+    volumes:
+      - .:/srv
+    environment:
+      FB_BASEURL: "/"
+      FB_NOAUTH: "false"
+      FB_USERNAME: "admin"
+      FB_PASSWORD: "admin"
+
+volumes:
+  db_data:
+
